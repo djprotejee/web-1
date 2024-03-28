@@ -1,0 +1,145 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+form {
+    max-width: 600px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+select,
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    margin-right: 5px;
+}
+
+input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+
+input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+input[type="color"] {
+    width: 40px;
+    height: 40px;
+    vertical-align: middle;
+}
+
+input[type="range"] {
+    width: 100%;
+}
+
+@media screen and (max-width: 600px) {
+    form {
+        margin: 20px;
+    }
+}
+
+/* CSS for filters */
+#dogSizeFilter,
+#dayFilter,
+#timeFilter {
+    max-width: 600px; /* Added max-width */
+    margin: 20px auto; /* Added margin for top and bottom, centered horizontally */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff; /* Set background color to white */
+}
+
+/* Adjusted button styling */
+button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 20px auto; /* Added margin for top and bottom, centered horizontally */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+#filteredResultsBySize,
+#filteredResultsByDay,
+#filteredResultsByTime {
+    max-width: 600px;
+    margin: 20px auto; /* Added margin for top and bottom, centered horizontally */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9; /* Added background color */
+}
+
+#filteredResultsBySize ul,
+#filteredResultsByDay ul,
+#filteredResultsByTime ul {
+    list-style: none;
+    padding: 0;
+    margin: 0; /* Added margin */
+}
+
+#filteredResultsBySize li,
+#filteredResultsByDay li,
+#filteredResultsByTime li {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff; /* Added background color */
+}
+
+
+#filteredResultsBySize li:last-child,
+#filteredResultsByDay li:last-child,
+#filteredResultsByTime li:last-child {
+    margin-bottom: 0;
+}
+
+
+
+
