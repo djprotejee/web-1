@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Форма вигулу собак</title>
+    <link rel="stylesheet" href="css/survey.css">
+</head>
+<body>
+    <h2>Форма вигулу собак</h2>
+    <form id="volunteerForm">
+        <label for="name">1. Ваше Ім'я:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="email">2. Електронна пошта:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="phone">3. Номер телефону:</label><br>
+        <input type="tel" id="phone" name="phone" value="+380 " pattern="\+380\s?\d{9}" placeholder="+380 123456789" required><br><br>
+
+        <label for="dogPreference">4. Бажана величина собаки:</label><br>
+        <select id="dogPreference" name="dogPreference" required>
+            <option value="nopreference">Будь-яка</option>
+            <option value="small">Маленька</option>
+            <option value="medium">Середня</option>
+            <option value="large">Велика</option>
+        </select><br><br>
+
+        <label for="experience">5. Досвід прогулянки з собаками:</label><br>
+        <textarea id="experience" name="experience" rows="4" cols="30" required></textarea><br><br>
+
+        <label for="availability">6. Бажаний час:</label><br>
+        <input type="datetime-local" id="availability" name="availability" required><br><br>
+
+        <label>7. Бажані дні:</label><br>
+        <input type="checkbox" id="monday" name="days" value="Понеділок">
+        <label for="monday">Понеділок</label><br>
+        <input type="checkbox" id="tuesday" name="days" value="Вівторок">
+        <label for="tuesday">Вівторок</label><br>
+        <input type="checkbox" id="wednesday" name="days" value="Середа">
+        <label for="wednesday">Середа</label><br>
+        <input type="checkbox" id="thursday" name="days" value="Четвер">
+        <label for="thursday">Четвер</label><br>
+        <input type="checkbox" id="friday" name="days" value="П'ятниця">
+        <label for="friday">П'ятниця</label><br><br>
+
+        <label>8. Перевага часу:</label><br>
+        <input type="radio" id="morning" name="time" value="Ранок">
+        <label for="morning">Ранок</label><br>
+        <input type="radio" id="afternoon" name="time" value="Обід">
+        <label for="afternoon">Обід</label><br>
+        <input type="radio" id="evening" name="time" value="Вечір">
+        <label for="evening">Вечір</label><br><br>
+
+        <label for="walkingDuration">9. Бажаний час прогулянки (у годинах):</label><br>
+        <input type="number" id="walkingDuration" name="walkingDuration" min="1" max="5" required><br><br>
+
+        <label for="colorPreference">10. Бажаний колір ошийника:</label><br>
+        <input type="color" id="colorPreference" name="colorPreference" value="#000000"><br><br>
+
+        <label for="distance">11. Відстань для прогулянки (км):</label><br>
+        <input type="range" id="distance" name="distance" min="1" max="10" step="0.5" value="5"><br><br>
+
+        <label for="comments">12. Додаткові коментарі:</label><br>
+        <textarea id="comments" name="comments" rows="4" cols="30"></textarea><br><br>
+
+        <label for="agreement">13. Угода:</label><br>
+        <input type="checkbox" id="agreement" name="agreement" required>
+        <label for="agreement">Я згоден дотримуватися правил та положень притулку для собак.</label><br><br>
+
+        <input type="submit" value="Надіслати">
+    </form>
+
+    <h2>Результати опитування</h2>
+    <div id="filteredResultsForm">
+        <form id="filterForm">
+            <label for="dogSizeFilter">Обрати собак за розміром:</label><br>
+            <select id="dogSizeFilter">
+                <option value="all">Усі розміри</option>
+                <option value="small">Маленькі</option>
+                <option value="medium">Середні</option>
+                <option value="large">Великі</option>
+            </select><br><br>
+
+            <button type="button" onclick="filterByDogSize()">Фільтрувати</button>
+
+            <div id="filteredResultsBySize"></div>
+
+            <label>Обрати день:</label><br>
+            <select id="dayFilter">
+                <option value="all">Будь-який день</option>
+                <option value="Понеділок">Понеділок</option>
+                <option value="Вівторок">Вівторок</option>
+                <option value="Середа">Середа</option>
+                <option value="Четвер">Четвер</option>
+                <option value="П'ятниця">П'ятниця</option>
+            </select><br><br>
+
+            <button type="button" onclick="filterByDay()">Фільтрувати</button>
+
+            <div id="filteredResultsByDay"></div>
+
+            <label>Обрати час:</label><br>
+            <select id="timeFilter">
+                <option value="all">Будь-який час</option>
+                <option value="Ранок">Ранок</option>
+                <option value="Обід">Обід</option>
+                <option value="Вечір">Вечір</option>
+            </select><br><br>
+
+            <button type="button" onclick="filterByTime()">Фільтрувати</button>
+
+            <div id="filteredResultsByTime"></div>
+        </form>
+    </div>
+<script>
+
+    const form = document.getElementById('volunteerForm');
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(form);
+        const data = {};
+        for (const [key, value] of formData.entries()) {
+            data[key] = value;
+        }
+
+        let storedData = JSON.parse(localStorage.getItem('volunteerFormData'));
+        if (!storedData) {
+            storedData = [];
+        }
+        storedData.push(data);
+        localStorage.setItem('volunteerFormData', JSON.stringify(storedData));
+
+        alert('Дякуємо за добровільну допомогу! Ваші дані збережено.');
+        form.reset();
+    });
+
+    function filterByDogSize() {
+        const selectedSize = document.getElementById('dogSizeFilter').value;
+        const storedData = JSON.parse(localStorage.getItem('volunteerFormData'));
+        let filteredData = storedData;
+
+        if (selectedSize !== 'all') {
+            filteredData = storedData.filter(item => item.dogPreference === selectedSize);
+        }
+
+        displayFilteredResults(filteredData);
+    }
+
+    function displayFilteredResults(data) {
+        const resultsContainer = document.getElementById('filteredResultsBySize');
+        resultsContainer.innerHTML = '';
+
+        if (data.length === 0) {
+            resultsContainer.textContent = 'Немає результатів за вибраним фільтром.';
+            return;
+        }
+
+     const resultList = document.createElement('ul');
+    data.forEach(item => {
+        const listItem = document.createElement('li');
+        // Додайте розмір собаки до тексту елемента списку
+        listItem.textContent = `${item.name} - ${item.phone} - Розмір собаки: ${getDogSizeLabel(item.dogPreference)}`;
+        resultList.appendChild(listItem);
+    });
+    resultsContainer.appendChild(resultList);
+}
+
+// Допоміжна функція для отримання текстової мітки розміру собаки
+function getDogSizeLabel(size) {
+    switch (size) {
+        case 'small':
+            return 'Маленька';
+        case 'medium':
+            return 'Середня';
+        case 'large':
+            return 'Велика';
+        default:
+            return 'Будь-яка';
+    }
+}
+
+    function filterByDay() {
+        const selectedDay = document.getElementById('dayFilter').value;
+        const storedData = JSON.parse(localStorage.getItem('volunteerFormData'));
+        let filteredData = storedData;
+
+        if (selectedDay !== 'all') {
+            filteredData = storedData.filter(item => item.days.includes(selectedDay));
+        }
+
+        displayFilteredResultsByDay(filteredData);
+    }
+
+function displayFilteredResultsByDay(data) {
+    const resultsContainer = document.getElementById('filteredResultsByDay');
+    resultsContainer.innerHTML = '';
+
+    if (data.length === 0) {
+        resultsContainer.textContent = 'Немає результатів за вибраним фільтром.';
+        return;
+    }
+
+    const resultList = document.createElement('ul');
+    data.forEach(item => {
+        const listItem = document.createElement('li');
+        const days = Array.isArray(item.days) ? item.days.join(', ') : item.days; // перевірка на масив
+        listItem.textContent = `${item.name} - ${item.phone} - Дні доступності: ${days}`;
+        resultList.appendChild(listItem);
+    });
+    resultsContainer.appendChild(resultList);
+}
+
+
+    function filterByTime() {
+        const selectedTime = document.getElementById('timeFilter').value;
+        const storedData = JSON.parse(localStorage.getItem('volunteerFormData'));
+        let filteredData = storedData;
+
+        if (selectedTime !== 'all') {
+            filteredData = storedData.filter(item => item.time === selectedTime);
+        }
+
+        displayFilteredResultsByTime(filteredData);
+    }
+
+    function displayFilteredResultsByTime(data) {
+        const resultsContainer = document.getElementById('filteredResultsByTime');
+        resultsContainer.innerHTML = '';
+
+        if (data.length === 0) {
+            resultsContainer.textContent = 'Немає результатів за вибраним фільтром.';
+            return;
+        }
+
+        const resultList = document.createElement('ul');
+        data.forEach(item => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${item.name} - ${item.phone} - Бажаний час: ${item.time}`;
+            resultList.appendChild(listItem);
+        });
+        resultsContainer.appendChild(resultList);
+    }
+</script>
+</body>
+</html>
