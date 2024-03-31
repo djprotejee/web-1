@@ -6,7 +6,6 @@
 canvas {
     border:1px solid #d3d3d3;
     background-color: #f1f1f1;
-    visibility: hidden; /* initially hide the canvas */
 }
 </style>
 </head>
@@ -17,6 +16,7 @@ var myGamePiece;
 var myObstacles = [];
 var myScore;
 var restartButton;
+var coinsCollected = 0; // Counter for collected coins
 
 var gameStarted = false; // Flag to track if the game has started
 
@@ -38,6 +38,10 @@ function restartGame() {
     myObstacles = [];
     myGameArea.clear();
     myGameArea.frameNo = 0;
+    coinsCollected = 0;
+
+    // Reset bonus coins array
+    myBonusCoins = [];
 
     // Recreate the game piece
     myGamePiece = new component(30, 30, "red", 10, 120);
@@ -47,7 +51,49 @@ function restartGame() {
 
     // Hide the restart button
     restartButton.style.display = "none";
+
+    // Reset the display of coins collected visually to zero
+    updateCoinsCollected();
 }
+
+// Function to update the display of coins collected
+function updateCoinsCollected() {
+    //coinsCollectedElement.innerHTML = "Coins Collected: " + coinsCollected;
+    document.body.appendChild(coinsCollectedElement);
+}
+
+// Function to update the scoreboard
+function updateScoreboard() {
+    var scoreboardElement = document.getElementById("scoreboard");
+    scoreboardElement.innerHTML = "<h2>Best Scores</h2><ul>";
+    for (var i = 0; i < 3; i++) {
+        scoreboardElement.innerHTML += "<li>Score: " + scoreboard.bestScores[i].score + ", Coins: " + scoreboard.bestScores[i].coins + "</li>";
+    }
+    scoreboardElement.innerHTML += "</ul><h2>Worst Scores</h2><ul>";
+    for (var i = 0; i < 3; i++) {
+        scoreboardElement.innerHTML += "<li>Score: " + scoreboard.worstScores[i].score + ", Coins: " + scoreboard.worstScores[i].coins + "</li>";
+    }
+    scoreboardElement.innerHTML += "</ul>";
+}
+// Scoreboard
+var scoreboard = {
+    bestScores: [],
+    worstScores: [],
+    update: function(score, coins) {
+        var newEntry = {score: score, coins: coins};
+        this.bestScores.push(newEntry);
+        this.worstScores.push(newEntry);
+        this.bestScores.sort(function(a, b) {
+            return b.score - a.score;
+        });
+        this.worstScores.sort(function(a, b) {
+            return a.score - b.score;
+        });
+        this.bestScores.splice(3); // Keep only top 3
+        this.worstScores.splice(3); // Keep only bottom 3
+        updateScoreboard();
+    }
+};
 
 function startGame() {
     myGamePiece = new component(30, 30, "red", 10, 120);
@@ -67,7 +113,7 @@ var myGameArea = {
     start : function() {
         this.canvas.width = 480;
         this.canvas.height = 270;
-        this.canvas.style.cursor = "none"; //hide the original cursor
+        this.canvas.style.cursor = "none"; // Hide the original cursor
         this.context = this.canvas.getContext("2d");
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.frameNo = 0;
@@ -84,6 +130,7 @@ var myGameArea = {
     stop : function() {
         clearInterval(this.interval);
         restartButton.style.display = "block"; // Display the restart button when the game stops
+        scoreboard.update(myGameArea.frameNo, coinsCollected); // Update scoreboard
     }
 }
 
@@ -127,6 +174,9 @@ function component(width, height, color, x, y, type) {
     }
 }
 
+var myBonusCoins = []; // Array to hold bonus coin objects
+var coinsCollectedElement = document.createElement("div"); // Element to display coins collected
+
 function updateGameArea() {
     var x, height, gap, minHeight, maxHeight, minGap, maxGap;
     for (i = 0; i < myObstacles.length; i += 1) {
@@ -149,18 +199,53 @@ function updateGameArea() {
         minGap = 50;
         maxGap = 200;
         gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
+        // Generate obstacles
         myObstacles.push(new component(10, height, "green", x, 0));
         myObstacles.push(new component(10, x - height - gap, "green", x, height + gap));
+
+        // Generate bonus coin
+        var bonusCoinX, bonusCoinY;
+        do {
+            bonusCoinX = x + Math.floor(Math.random() * (maxGap - minGap + 1) + minGap); // Random X position between obstacles
+            bonusCoinY = Math.floor(Math.random() * (maxHeight - minHeight + 1) + minHeight); // Random Y position within obstacle heights
+        } while (isCoinOverlapping(bonusCoinX, bonusCoinY)); // Check if the coin overlaps with obstacles or other coins
+        myBonusCoins.push(new component(10, 10, "yellow", bonusCoinX, bonusCoinY));
     }
     for (i = 0; i < myObstacles.length; i += 1) {
         myObstacles[i].speedX = -1;
         myObstacles[i].newPos();
         myObstacles[i].update();
     }
-    myScore.text="SCORE: " + myGameArea.frameNo;
+    for (i = 0; i < myBonusCoins.length; i++) {
+        myBonusCoins[i].speedX = -1; // Move the bonus coin along with obstacles
+        myBonusCoins[i].newPos();
+        myBonusCoins[i].update();
+        if (myGamePiece.crashWith(myBonusCoins[i])) { // Check collision with the bonus coin
+            coinsCollected++; // Increase coins collected count
+            myBonusCoins.splice(i, 1); // Remove the collected coin
+            updateCoinsCollected(); // Update the coins collected display
+        }
+    }
+    myScore.text = "SCORE: " + myGameArea.frameNo + " | " + coinsCollected;
     myScore.update();
     myGamePiece.newPos();
     myGamePiece.update();
+}
+// Function to check if a coin is overlapping with obstacles or other coins
+function isCoinOverlapping(x, y) {
+    for (var i = 0; i < myObstacles.length; i++) {
+        if ((x >= myObstacles[i].x && x <= myObstacles[i].x + myObstacles[i].width) &&
+            (y >= myObstacles[i].y && y <= myObstacles[i].y + myObstacles[i].height)) {
+            return true;
+        }
+    }
+    for (var i = 0; i < myBonusCoins.length; i++) {
+        if ((x >= myBonusCoins[i].x && x <= myBonusCoins[i].x + myBonusCoins[i].width) &&
+            (y >= myBonusCoins[i].y && y <= myBonusCoins[i].y + myBonusCoins[i].height)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function everyinterval(n) {
@@ -173,5 +258,6 @@ document.body.addEventListener('mousedown', startGameOnClick);
 
 </script>
 <button id="startButton">Start Game</button>
+<div id="scoreboard"></div>
 </body>
 </html>
