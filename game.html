@@ -6,20 +6,60 @@
 canvas {
     border:1px solid #d3d3d3;
     background-color: #f1f1f1;
+    visibility: hidden; /* initially hide the canvas */
 }
 </style>
 </head>
-<body onload="startGame()">
+<body>
 <script>
 
 var myGamePiece;
 var myObstacles = [];
 var myScore;
+var restartButton;
+
+var gameStarted = false; // Flag to track if the game has started
+
+// Function to start the game when the user clicks anywhere on the screen
+function startGameOnClick() {
+    if (!gameStarted) {
+        startGame();
+        gameStarted = true;
+        document.getElementById("startButton").style.display = "none"; // Hide the start button once the game starts
+    }
+}
+
+// Function to restart the game
+function restartGame() {
+    // Stop the game interval
+    clearInterval(myGameArea.interval);
+
+    // Reset game variables
+    myObstacles = [];
+    myGameArea.clear();
+    myGameArea.frameNo = 0;
+
+    // Recreate the game piece
+    myGamePiece = new component(30, 30, "red", 10, 120);
+
+    // Restart the game
+    myGameArea.start();
+
+    // Hide the restart button
+    restartButton.style.display = "none";
+}
 
 function startGame() {
     myGamePiece = new component(30, 30, "red", 10, 120);
     myScore = new component("30px", "Consolas", "black", 280, 40, "text");
     myGameArea.start();
+    restartButton = document.createElement("button");
+    restartButton.innerHTML = "Restart Game";
+    restartButton.onclick = restartGame;
+    restartButton.style.position = "absolute";
+    restartButton.style.top = "10px";
+    restartButton.style.left = "10px";
+    document.body.appendChild(restartButton);
 }
 
 var myGameArea = {
@@ -33,15 +73,17 @@ var myGameArea = {
         this.frameNo = 0;
         this.interval = setInterval(updateGameArea, 20);
         window.addEventListener('mousemove', function (e) {
-        myGameArea.x = e.pageX;
-        myGameArea.y = e.pageY;
-          })
-        },
+            myGameArea.x = e.pageX;
+            myGameArea.y = e.pageY;
+        });
+        this.canvas.style.visibility = "visible"; // Make the canvas visible when the game starts
+    },
     clear : function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     },
     stop : function() {
         clearInterval(this.interval);
+        restartButton.style.display = "block"; // Display the restart button when the game stops
     }
 }
 
@@ -95,8 +137,8 @@ function updateGameArea() {
     }
     myGameArea.clear();
     if (myGameArea.x && myGameArea.y) {
-      myGamePiece.x = myGameArea.x;
-      myGamePiece.y = myGameArea.y;
+        myGamePiece.x = myGameArea.x;
+        myGamePiece.y = myGameArea.y;
     }
     myGameArea.frameNo += 1;
     if (myGameArea.frameNo == 1 || everyinterval(150)) {
@@ -126,34 +168,10 @@ function everyinterval(n) {
     return false;
 }
 
-function moveup() {
-    myGamePiece.speedY = -1;
-}
+// Start the game when the user clicks anywhere on the screen
+document.body.addEventListener('mousedown', startGameOnClick);
 
-function movedown() {
-    myGamePiece.speedY = 1;
-}
-
-function moveleft() {
-    myGamePiece.speedX = -1;
-}
-
-function moveright() {
-    myGamePiece.speedX = 1;
-}
-
-function clearmove() {
-    myGamePiece.speedX = 0;
-    myGamePiece.speedY = 0;
-}
 </script>
-<div style="text-align:center;width:480px;">
-  <button onmousedown="moveup()" onmouseup="clearmove()" ontouchstart="moveup()">UP</button><br><br>
-  <button onmousedown="moveleft()" onmouseup="clearmove()" ontouchstart="moveleft()">LEFT</button>
-  <button onmousedown="moveright()" onmouseup="clearmove()" ontouchstart="moveright()">RIGHT</button><br><br>
-  <button onmousedown="movedown()" onmouseup="clearmove()" ontouchstart="movedown()">DOWN</button>
-</div>
-
-<p>The score will count one point for each frame you manage to "stay alive".</p>
+<button id="startButton">Start Game</button>
 </body>
 </html>
