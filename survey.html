@@ -122,7 +122,14 @@
         const formData = new FormData(form);
         const data = {};
         for (const [key, value] of formData.entries()) {
-            data[key] = value;
+            if (key === 'days') {
+                if (!data[key]) {
+                    data[key] = [];
+                }
+                data[key].push(value); // Store selected days in an array
+            } else {
+                data[key] = value;
+            }
         }
 
         let storedData = JSON.parse(localStorage.getItem('volunteerFormData'));
@@ -157,29 +164,29 @@
             return;
         }
 
-     const resultList = document.createElement('ul');
-    data.forEach(item => {
-        const listItem = document.createElement('li');
-        // Додайте розмір собаки до тексту елемента списку
-        listItem.textContent = `${item.name} - ${item.phone} - Розмір собаки: ${getDogSizeLabel(item.dogPreference)}`;
-        resultList.appendChild(listItem);
-    });
-    resultsContainer.appendChild(resultList);
-}
-
-// Допоміжна функція для отримання текстової мітки розміру собаки
-function getDogSizeLabel(size) {
-    switch (size) {
-        case 'small':
-            return 'Маленька';
-        case 'medium':
-            return 'Середня';
-        case 'large':
-            return 'Велика';
-        default:
-            return 'Будь-яка';
+        const resultList = document.createElement('ul');
+        data.forEach(item => {
+            const listItem = document.createElement('li');
+            // Додання розміру собаки до тексту елемента списку
+            listItem.textContent = `${item.name} - ${item.phone} - Розмір собаки: ${getDogSizeLabel(item.dogPreference)}`;
+            resultList.appendChild(listItem);
+        });
+        resultsContainer.appendChild(resultList);
     }
-}
+
+    // Допоміжна функція для отримання текстової мітки розміру собаки
+    function getDogSizeLabel(size) {
+        switch (size) {
+            case 'small':
+                return 'Маленька';
+            case 'medium':
+                return 'Середня';
+            case 'large':
+                return 'Велика';
+            default:
+                return 'Будь-яка';
+        }
+    }
 
     function filterByDay() {
         const selectedDay = document.getElementById('dayFilter').value;
@@ -193,24 +200,24 @@ function getDogSizeLabel(size) {
         displayFilteredResultsByDay(filteredData);
     }
 
-function displayFilteredResultsByDay(data) {
-    const resultsContainer = document.getElementById('filteredResultsByDay');
-    resultsContainer.innerHTML = '';
+    function displayFilteredResultsByDay(data) {
+        const resultsContainer = document.getElementById('filteredResultsByDay');
+        resultsContainer.innerHTML = '';
 
-    if (data.length === 0) {
-        resultsContainer.textContent = 'Немає результатів за вибраним фільтром.';
-        return;
+        if (data.length === 0) {
+            resultsContainer.textContent = 'Немає результатів за вибраним фільтром.';
+            return;
+        }
+
+        const resultList = document.createElement('ul');
+        data.forEach(item => {
+            const listItem = document.createElement('li');
+            const days = Array.isArray(item.days) ? item.days.join(', ') : item.days; // перевірка на масив
+            listItem.textContent = `${item.name} - ${item.phone} - Дні доступності: ${days}`;
+            resultList.appendChild(listItem);
+        });
+        resultsContainer.appendChild(resultList);
     }
-
-    const resultList = document.createElement('ul');
-    data.forEach(item => {
-        const listItem = document.createElement('li');
-        const days = Array.isArray(item.days) ? item.days.join(', ') : item.days; // перевірка на масив
-        listItem.textContent = `${item.name} - ${item.phone} - Дні доступності: ${days}`;
-        resultList.appendChild(listItem);
-    });
-    resultsContainer.appendChild(resultList);
-}
 
 
     function filterByTime() {
