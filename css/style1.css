@@ -300,7 +300,7 @@ body {
     visibility: visible;
     opacity: 1;
   }
-  .mobile-nav:hover, .mobile-nav:focus .dropbtn {
+  /*.mobile-nav:hover,*/ .mobile-nav:focus .dropbtn {
     background-color: grey;
   }
   .mobile-nav .db2 {
