@@ -26,6 +26,7 @@ document.getElementById('quizForm').addEventListener('submit', function(event) {
 
     if (answer === correctAnswer) {
       score++;
+      // Додаємо клас "correct" до контейнера питання
       questionContainer.classList.add('correct');
       questionContainer.classList.remove('wrong');
     } else {

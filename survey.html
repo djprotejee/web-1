@@ -117,31 +117,46 @@
 
     const form = document.getElementById('volunteerForm');
 
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(form);
-        const data = {};
-        for (const [key, value] of formData.entries()) {
-            if (key === 'days') {
-                if (!data[key]) {
-                    data[key] = [];
-                }
-                data[key].push(value); // Store selected days in an array
-            } else {
-                data[key] = value;
+// Додає обробник події до подання форми
+form.addEventListener('submit', function(event) {
+    // Запобігає перезавантаженню сторінки
+    event.preventDefault();
+
+    const formData = new FormData(form);
+
+    const data = {};
+
+    // Проходиться по всіх елементах FormData
+    for (const [key, value] of formData.entries()) {
+        if (key === 'days') {
+            if (!data[key]) {
+                data[key] = [];
             }
+            data[key].push(value);
+        } else {
+            data[key] = value;
         }
+    }
 
-        let storedData = JSON.parse(localStorage.getItem('volunteerFormData'));
-        if (!storedData) {
-            storedData = [];
-        }
-        storedData.push(data);
-        localStorage.setItem('volunteerFormData', JSON.stringify(storedData));
+    // Отримує дані з локального сховища браузера та перетворює у масив
+    let storedData = JSON.parse(localStorage.getItem('volunteerFormData'));
 
-        alert('Дякуємо за добровільну допомогу! Ваші дані збережено.');
-        form.reset();
-    });
+    // Якщо дані відсутні, створює новий масив
+    if (!storedData) {
+        storedData = [];
+    }
+
+    // Додає нові дані до масиву
+    storedData.push(data);
+
+    // Зберігає оновлений масив у локальному сховищі браузера
+    localStorage.setItem('volunteerFormData', JSON.stringify(storedData));
+
+    alert('Дякуємо за добровільну допомогу! Ваші дані збережено.');
+
+    form.reset();
+});
+
 
     function filterByDogSize() {
         const selectedSize = document.getElementById('dogSizeFilter').value;
@@ -156,7 +171,9 @@
     }
 
     function displayFilteredResults(data) {
+         // Посилання на контейнер результатів за розміром
         const resultsContainer = document.getElementById('filteredResultsBySize');
+         // Очищаємо вміст контейнера результатів перед відображенням нових даних
         resultsContainer.innerHTML = '';
 
         if (data.length === 0) {
@@ -165,12 +182,16 @@
         }
 
         const resultList = document.createElement('ul');
+
         data.forEach(item => {
+             // Створюємо новий елемент списку для поточного результату
             const listItem = document.createElement('li');
             // Додання розміру собаки до тексту елемента списку
             listItem.textContent = `${item.name} - ${item.phone} - Розмір собаки: ${getDogSizeLabel(item.dogPreference)}`;
+            // Додаємо елемент списку до списку результатів
             resultList.appendChild(listItem);
         });
+        // Додаємо список результатів до контейнера результатів
         resultsContainer.appendChild(resultList);
     }
 
@@ -189,9 +210,10 @@
     }
 
     function filterByDay() {
+        // Отримуємо вибраний день з фільтру
         const selectedDay = document.getElementById('dayFilter').value;
         const storedData = JSON.parse(localStorage.getItem('volunteerFormData'));
-        let filteredData = storedData;
+        let filteredData = storedData; // Копіюємо всі дані як початкові значення фільтрованих даних
 
         if (selectedDay !== 'all') {
             filteredData = storedData.filter(item => item.days.includes(selectedDay));
@@ -201,6 +223,7 @@
     }
 
     function displayFilteredResultsByDay(data) {
+        // Отримуємо посилання на контейнер результатів
         const resultsContainer = document.getElementById('filteredResultsByDay');
         resultsContainer.innerHTML = '';
 
@@ -210,9 +233,12 @@
         }
 
         const resultList = document.createElement('ul');
+
         data.forEach(item => {
             const listItem = document.createElement('li');
+            // Перевіряємо, чи дні доступності є масивом, якщо так, то об'єднуємо їх у рядок
             const days = Array.isArray(item.days) ? item.days.join(', ') : item.days; // перевірка на масив
+            // Встановлюємо текст елементу списку, що містить дані про результат
             listItem.textContent = `${item.name} - ${item.phone} - Дні доступності: ${days}`;
             resultList.appendChild(listItem);
         });
@@ -223,7 +249,7 @@
     function filterByTime() {
         const selectedTime = document.getElementById('timeFilter').value;
         const storedData = JSON.parse(localStorage.getItem('volunteerFormData'));
-        let filteredData = storedData;
+        let filteredData = storedData; // Копіюємо всі дані як початкові значення фільтрованих даних
 
         if (selectedTime !== 'all') {
             filteredData = storedData.filter(item => item.time === selectedTime);
@@ -243,7 +269,9 @@
 
         const resultList = document.createElement('ul');
         data.forEach(item => {
+            // Створюємо новий елемент списку для поточного результату
             const listItem = document.createElement('li');
+            // Встановлюємо текст елементу списку, що містить дані про результат
             listItem.textContent = `${item.name} - ${item.phone} - Бажаний час: ${item.time}`;
             resultList.appendChild(listItem);
         });
